@@ -5,25 +5,26 @@ import { GlobalStyle, Wrapper } from './App.style';
 import SelectDifficulty, { Difficulty } from './components/SelectDifficulty';
 import SelectQuestions, { TotalQuestions } from './components/SelectQuestions';
 import SelectCategory from './components/SelectCategory';
+import DetailsCard from './components/DetailsCard';
 import { Category, QuestionState, AnswerObject } from './Types';
 
 const App = () => {
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuestionState[]>([]);
-  const [number, setNumber] = useState(0);
+  const [questionNumber, setQuestionNumber] = useState(0);
   const [userAnswers, setUserAnswers] = useState<AnswerObject[]>([]);
   const [score, setScore] = useState(0);
-  const [gameOver, setGameOver] = useState(true);
+  const [gameOver, setGameOver] = useState<boolean>(true);
   const [difficulty, setDifficulty] = useState<string>(Difficulty.EASY);
   const [totalQuestionNumber, setTotalQuestionNumber] = useState<number>(
     TotalQuestions.TEN
   );
 
-  const [category, setCategory] = useState<number>(1);
+  const [categoryID, setCategoryID] = useState<number>(1);
   const [categoryList, setCategoryList] = useState<Array<Category>>([]);
 
   useEffect(() => {
-    fetchCategories().then((data) => setCategoryList(data));
+    fetchCategories().then((categories) => setCategoryList(categories));
   }, []);
 
   const startTrivia = async () => {
@@ -32,14 +33,14 @@ const App = () => {
 
     const newQuestions = await fetchQuizQuestions(
       totalQuestionNumber,
-      category,
+      categoryID,
       difficulty
     );
 
-    setQuestions(newQuestions);
     setScore(0);
     setUserAnswers([]);
-    setNumber(0);
+    setQuestionNumber(0);
+    setQuestions(newQuestions);
     setLoading(false);
   };
 
@@ -47,17 +48,16 @@ const App = () => {
     if (!gameOver) {
       const answer = e.currentTarget.value;
 
-      const correct = questions[number].correct_answer === answer;
-
+      const correct = questions[questionNumber].correct_answer === answer;
       if (correct) {
         setScore((prev) => prev + 1);
       }
 
       const answerObject = {
-        question: questions[number].question,
+        question: questions[questionNumber].question,
         answer,
         correct,
-        correctAnswer: questions[number].correct_answer
+        correctAnswer: questions[questionNumber].correct_answer
       };
 
       setUserAnswers((prev) => [...prev, answerObject]);
@@ -65,11 +65,10 @@ const App = () => {
   };
 
   const nextQuestion = () => {
-    const nextNumber = number + 1;
-    if (nextNumber === totalQuestionNumber) {
+    if (questionNumber + 1 >= totalQuestionNumber) {
       setGameOver(true);
     } else {
-      setNumber(nextNumber);
+      setQuestionNumber(questionNumber + 1);
     }
   };
 
@@ -79,7 +78,7 @@ const App = () => {
       <Wrapper className="App">
         <h1>Quiz</h1>
 
-        {gameOver || number + 1 === totalQuestionNumber ? (
+        {gameOver || questionNumber === totalQuestionNumber ? (
           <div>
             <SelectDifficulty
               difficulty={difficulty}
@@ -90,37 +89,44 @@ const App = () => {
               setTotalQuestionNumber={setTotalQuestionNumber}
             />
             <SelectCategory
-              category={category}
+              categoryID={categoryID}
               categoryList={categoryList}
-              setCategory={setCategory}
+              setCategoryID={setCategoryID}
             />
             <button className="start" onClick={startTrivia}>
               Start
-              {number + 1 === totalQuestionNumber && ' again'}
+              {questionNumber + 1 === totalQuestionNumber && ' again'}
             </button>
           </div>
         ) : null}
 
-        {loading ?? <p>Load Questions...</p>}
+        {loading ?? <p>Loading Questions...</p>}
+        {
+          <DetailsCard
+          gameOver={gameOver}
+            difficulty={difficulty}
+            category={
+              questions ? questions[questionNumber]?.category : undefined
+            }
+            score={score}
+            questionNumber={questionNumber}
+            totalQuestions={totalQuestionNumber}
+          />
+        }
 
         {!loading && !gameOver && (
           <QuestionCard
-            difficulty={difficulty}
-            score={score}
-            questionNr={number + 1}
-            totalQuestions={totalQuestionNumber}
-            question={questions[number].question}
-            answers={questions[number].answers}
-            category={questions[number].category}
-            userAnswer={userAnswers ? userAnswers[number] : undefined}
+            question={questions[questionNumber].question}
+            answers={questions[questionNumber].answers}
+            userAnswers={userAnswers ? userAnswers[questionNumber] : undefined}
             callback={checkAnswer}
           />
         )}
 
         {!gameOver &&
         !loading &&
-        userAnswers.length === number + 1 &&
-        number + 1 !== totalQuestionNumber ? (
+        userAnswers.length === questionNumber + 1 &&
+        questionNumber !== totalQuestionNumber ? (
           <button className="next" onClick={nextQuestion}>
             Next Question
           </button>

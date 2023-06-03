@@ -1,64 +1,36 @@
 import React from 'react';
 import { ButtonWrapper } from '../App.style';
 import { AnswerObject } from '../Types';
-import { Capitalize } from '../Utils';
+import { unEscape } from '../Utils';
 
 type Props = {
   answers: string[];
   callback: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  difficulty: string;
   question: string;
-  category: string;
-  questionNr: number;
-  score: number;
-  totalQuestions: number;
-  userAnswer: AnswerObject | undefined;
+  userAnswers: AnswerObject | undefined;
 };
 
 const QuestionCard: React.FC<Props> = ({
   answers,
   callback,
-  difficulty,
   question,
-  category,
-  questionNr,
-  score,
-  totalQuestions,
-  userAnswer
+  userAnswers
 }) => (
   <div className="question-card-wrapper">
-    <div className="details">
-      <div>Difficulty: {Capitalize(difficulty)}</div>
-      <div>{category}</div>
+    <p className="question">{unEscape(question)}</p>
+    <div>
+      {answers.map((answer) => (
+        <ButtonWrapper
+          correct={userAnswers?.correctAnswer === answer}
+          userClicked={userAnswers?.answer === answer}
+          key={answer}
+        >
+          <button disabled={!!userAnswers} onClick={callback} value={answer}>
+            <span>{unEscape(answer)}</span>
+          </button>
+        </ButtonWrapper>
+      ))}
     </div>
-    <div className="details">
-      <div>
-        Question: {questionNr}/{totalQuestions}
-      </div>
-      <div>Score: {score}</div>
-    </div>
-
-    {!(questionNr === totalQuestions) && (
-      <>
-        <p
-          className="question"
-          dangerouslySetInnerHTML={{ __html: question }}
-        />
-        <div>
-          {answers.map((answer) => (
-            <ButtonWrapper
-              correct={userAnswer?.correctAnswer === answer}
-              userClicked={userAnswer?.answer === answer}
-              key={answer}
-            >
-              <button disabled={!!userAnswer} onClick={callback} value={answer}>
-                <span dangerouslySetInnerHTML={{ __html: answer }} />
-              </button>
-            </ButtonWrapper>
-          ))}
-        </div>
-      </>
-    )}
   </div>
 );
 

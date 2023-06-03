@@ -41,7 +41,8 @@ export const Wrapper = styled.div`
     text-align: center;
     margin-bottom: 2rem;
     @media (max-width: 768px) {
-      font-size: 2rem;
+      font-size: 1.4rem;
+      margin-bottom: .5rem;
     }
   }
 
@@ -50,13 +51,14 @@ export const Wrapper = styled.div`
   }
 
   .details {
-    margin: 2rem 0;
+    margin: .3rem 0;
     font-size: 1.4rem;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     @media (max-width: 768px) {
       flex-direction: column;
+      font-size: 1.2rem;
     }
   }
 
@@ -109,7 +111,7 @@ export const ButtonWrapper = styled.div<ButtonWrapperProps>`
 export const SelectWrapper = styled.select`
   width: 100%;
   max-width: 70rem;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   background-color: #22363c;
   color: white;
   padding: 0.24rem;
