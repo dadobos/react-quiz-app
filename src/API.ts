@@ -7,8 +7,11 @@ export const fetchQuizQuestions = async (
   difficulty: string
 ) => {
   try {
-    let anyCategory: string = category === 1 ? '' : '&category=' + category;
-    const endpoint = `https://opentdb.com/api.php?amount=${amount}${anyCategory}&difficulty=${difficulty}&type=multiple`;
+
+    const endpoint = `https://opentdb.com/api.php?amount=${amount}${category === 1 ? '' : '&category=' + 
+    category}&difficulty=${difficulty}&type=multiple`;
+
+    
     const data = await (await fetch(endpoint)).json();
     return data.results.map((question: QuestionType) => ({
       ...question,
