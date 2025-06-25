@@ -23,7 +23,7 @@ const DetailsCard: React.FC<Props> = ({
       <div className="details">
         <div>Difficulty: {Capitalize(difficulty)}</div>
         <div>
-          Question: {!gameOver && questionNumber + 1+'\/'}{totalQuestions}
+          Question: {!gameOver && questionNumber + 1}{totalQuestions}
         </div>
         <div>Score: {score}</div>
         {category && (
